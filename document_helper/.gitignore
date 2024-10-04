@@ -1,0 +1,56 @@
+env/*
+env
+chroma_langchain_db
+chroma_langchain_db/*
+# Ignore Python bytecode
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Ignore environment variables
+.env
+.venv/
+env/
+venv/
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore log files
+*.log
+
+# Ignore databases
+*.sqlite3
+*.db
+
+# Ignore large files
+*.pkl
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.bak
+
+# Ignore compiled Python extensions
+*.so
+*.dll
+*.dylib
+
+# Ignore virtual environments
+.venv/
+env/
+venv/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore IDE settings (PyCharm, etc.)
+.idea/
+*.iml
+
+# Ignore node_modules (if using Node.js)
+node_modules/
