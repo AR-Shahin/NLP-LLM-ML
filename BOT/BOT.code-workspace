@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../Downloads/Materials/OpenAI/Telegram-chatbot"
+		}
+	],
+	"settings": {
+		"nuxt.isNuxtApp": false
+	}
+}
