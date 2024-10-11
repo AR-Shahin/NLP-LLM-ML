@@ -7,18 +7,24 @@ from langchain_openai import ChatOpenAI
 import logging
 
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-
+from langchain.chains import LLMChain,ConversationChain
+from langchain.memory import ConversationBufferWindowMemory
 # Load environment variables from .env file
 load_dotenv()
 
 app = FastAPI()
 
+memory = ConversationBufferWindowMemory(k=10)
 
+def clear_memory():
+    memory.clear()
+    
 try:
     llm = ChatOpenAI(
-        model="gpt-4",  
-        openai_api_key=os.getenv("OPENAI_API_KEY")  
+        model_name="gpt-4",  
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        temperature= 0.3,
+        max_tokens=300
     )
 except Exception as e:
     print(e)
@@ -36,15 +42,14 @@ app.add_middleware(
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
-# Dictionary to store user states (e.g., waiting for input)
-user_states = {}
 
 @app.get("/")
 def index(text = "hi"):
     try:
-        prompt =  PromptTemplate.from_template("Answer this quesiton  {text}")
-        chain = LLMChain(llm=llm, prompt=prompt)
-        return {"data": "FAST API","ai" : chain.run(text)}
+        prompt =  PromptTemplate.from_template("Answer this quesiton  {text}").format(text=text)
+        chain = ConversationChain(llm=llm, memory=memory)
+        res = chain.invoke(prompt)
+        return {"data": "FAST API","ai" : res}
     except Exception as e:
         print(e)
     
@@ -52,16 +57,22 @@ def index(text = "hi"):
 @app.post(f"/webhook/{TELEGRAM_BOT_TOKEN}")
 async def telegram_webhook(request: Request):
     data = await request.json()
-    print(data)
+
+    print("----------",data,"---------")
     
     # Handle callback queries or text messages
     if "message" in data:
         chat_id = data['message']['chat']['id']
         query = data['message']['text']
-    
-        prompt = PromptTemplate.from_template("You are a helpful assistant. Please answer the following question: {query}")
-        chain = LLMChain(llm=llm, prompt=prompt)
-        response = chain.invoke(query)["text"]
+
+        if query == "/clear":
+            clear_memory()
+            send_message(chat_id,"Memory has been cleared!")
+            return
+
+        prompt = PromptTemplate.from_template("You are a helpful assistant. Please answer the following question: {query}").format(query=query)
+        chain = ConversationChain(llm=llm, memory=memory)
+        response = chain.invoke(prompt)["response"]
         send_message(chat_id,response)
 
     return {"status": "ok"}
@@ -122,6 +133,7 @@ def send_message(chat_id: int, text: str):
     response = requests.post(url, json=payload)
 
     if response.status_code != 200:
+        print("-----Response-----",payload, "------------")
         print(f"Error sending message: {response.text}")
     return response
 
