@@ -13,7 +13,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-
+from langchain.memory import ConversationBufferWindowMemory
 load_dotenv()
 st.set_page_config(
     page_title="BOTMAN",
@@ -94,8 +94,7 @@ if query:
             vectorstore = pickle.load(f)
             chain = RetrievalQAWithSourcesChain.from_llm(llm=llm, retriever=vectorstore.as_retriever())
             result = chain({"question": query}, return_only_outputs=True)
-            # result will be a dictionary of this format --> {"answer": "", "sources": [] }
-            main_placeholder.text("Here is your response...✅✅✅")
+             # result will be a dictionary of this format --> {"answer": "", "sources": [] }
             st.header("Answer")
             st.write(result["answer"])
 
@@ -105,4 +104,4 @@ if query:
                 st.subheader("Sources:")
                 sources_list = sources.split("\n")  # Split the sources by newline
                 for source in sources_list:
-                    st.write(source)
+                        st.write(source)
