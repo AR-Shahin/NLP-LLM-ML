@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import ChatOpenAI
 import logging
-
+import uvicorn
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain,ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
@@ -138,5 +138,5 @@ def send_message(chat_id: int, text: str):
     return response
 
 if __name__ == "__main__":
-    import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
